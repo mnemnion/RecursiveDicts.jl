@@ -5,8 +5,7 @@ using Aqua
 
 @testset "RecursiveDicts.jl" begin
     @testset "Code quality (Aqua.jl)" begin
-        # one thing at a time...
-        # Aqua.test_all(RecursiveDicts)
+        Aqua.test_all(RecursiveDicts)
     end
     # Copypasted from Julia core with s/Dict/RecursiveDict/g
 

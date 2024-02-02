@@ -40,64 +40,107 @@ struct RecursiveDict{K,V} <: AbstractDict{K,Union{V,RecursiveDict}}
         dict = Dict(args...)
         new{keytype(dict),valtype(dict)}(dict)
     end
- end
-
-function Base.summary(io::IO, d::RecursiveDict)
-    print(io, "RecursiveDict{$(keytype(d)), $(Union{valtype(d), typeof(d)})})")
-    if Base.IteratorSize(d.self) isa Base.HasLength
-        n = length(d)
-        print(io, " with ", n, (n==1 ? " entry" : " entries"))
-    else
-        print(io, "(...)")
-    end
 end
 
+@inline
 Base.iterate(d::RecursiveDict, i...) = iterate(d.self, i...)
+
+@inline
 Base.isiterable(d::RecursiveDict) = true
+
+@inline
 Base.in(p::Pair, d::RecursiveDict) = in(p, d.self)
+
+@inline
 Base.size(d::RecursiveDict) = size(d.self)
+
+@inline
 Base.length(d::RecursiveDict) = length(d.self)
+
+@inline
 Base.keys(d::RecursiveDict) = keys(d.self)
+
+@inline
 Base.values(d::RecursiveDict) = values(d.self)
+
+@inline
 Base.eltype(d::RecursiveDict) = eltype(d.self)
+
+@inline
 Base.keytype(d::RecursiveDict) = keytype(d.self)
+
+@inline
 Base.valtype(::Type{RecursiveDict{K,V}}) where {K,V} = Union{V,RecursiveDict{K,V}}
+
+@inline
 Base.getindex(d::RecursiveDict, k) = getindex(d.self, k)
+
+@inline
 Base.setindex!(d::RecursiveDict, v, k...) = setindex!(d.self, v, k...)
+
+@inline
 Base.setindex!(d::RecursiveDict, v::AbstractDict, k...) = setindex!(d.self, RecursiveDict(v), k...)
+
+@inline
 Base.empty(::RecursiveDict{K,V}) where {K,V} = RecursiveDict{K,V}()
+
+@inline
 Base.empty(::RecursiveDict, ::Type{K}, ::Type{V}) where {K, V} = RecursiveDict{K,V}()
+
+@inline
 Base.convert(::Type{Dict}, d::RecursiveDict) = d.self
+
+@inline
 Base.convert(::Type{RecursiveDict}, d::Dict) = RecursiveDict(d)
+
+@inline
 Base.get(d::RecursiveDict, args...) = get(d.self, args...)
+
+@inline
 Base.get(f::Callable, d::RecursiveDict, key) = get(f, d.self, key)
+
+@inline
 Base.getkey(d::RecursiveDict, args...) = getkey(d.self, args...)
+
+@inline
 Base.get!(d::RecursiveDict, args...) = get!(d.self, args...)
+
+@inline
 Base.get!(f::Callable, d::RecursiveDict, key) = get!(f, d.self, key)
+
+@inline
 Base.pop!(d::RecursiveDict, args...) = pop!(d.self, args...)
+
+@inline
 Base.sizehint!(d::RecursiveDict, args...; kwargs...) = sizehint!(d.self, args...; kwargs...)
 
+@inline
 function Base.delete!(d::RecursiveDict, k::Any)
     delete!(d.self, k)
     return d
 end
 
+@inline
 function Base.empty!(d::RecursiveDict)
     empty!(d.self)
     return d
 end
 
+@inline
 Base.copy(d::RecursiveDict{K,V}) where {K,V} = RecursiveDict{K,V}(copy(d.self))
 
+@inline
 function Base.push!(d::RecursiveDict, p::Pair...)
     push!(d.self, p...)
     return d
 end
 
+@inline
 function Base.merge(d::RecursiveDict, d2::AbstractDict)
     merge!(copy(d), RecursiveDict(d2))
 end
 
+@inline
 function Base.mergewith(combine::Callable, d::RecursiveDict, others::AbstractDict...)
     mergewith!(combine, copy(d), others...)
 end
