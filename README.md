@@ -35,7 +35,7 @@ MethodError: Cannot `convert` an object of type
 ## Why Does the Type Signature Look Like That?
 
 Type parameters express the free variables in the type. In a `Dict{K,V}`, the keytype and
-valtype are both free, so `K` and `V` are both the keytype and valtype, and the free parameters.
+valtype are both free, so `K` and `V` are both the `keytype` and `valtype`, and the free parameters.
 
 ```jldoctest
 julia> d = Dict{Int,String}(1 => "one", 2 => "two")
@@ -88,7 +88,9 @@ The Julia compiler is very good at inferring through this kind of wrapper and in
 methods which act on it, so there should be no performance impact from using it.
 
 It's possible that the compiler might be free to write more efficient code under some
-circumstances, although I wouldn't count on it.
+circumstances, although I wouldn't count on it.  It does let _you_ write more efficient
+code.  Since, by construction, the type parameters of a `RecursiveDict` value will be the
+ones you expect, there's no need to check this.
 
 The real reason this package exists is because, early in my Julia journey, I drove myself
 insane trying to write a type signature for a recursively defined `Dict`.  I learned a lot
@@ -107,9 +109,9 @@ necessary to reflect the semantic differences.  Other than the obvious ones invo
 might be a bit surprising, but it's consistent with the `valtype` being a Union, Julia
 throws an error on code like `convert(Union{Int,Symbol}, 4.0)`.
 
-`convert(Dict, myrecursivedict)` will return the wrapped `Dict`, which will continue to
+`convert(Dict, recursivedict)` will return the wrapped `Dict`, which will continue to
 share contents with the original, and `convert(RecursiveDict, dict)` is also defined,
-this makes it mostly painless to use a `RecursiveDict` where ever a `Dict` is
+this makes it mostly painless to use a `RecursiveDict` wherever a `Dict` is
 expected.  Many, probably most, methods with `::Dict` in the signature, should actually
 have `::AbstractDict`, so if you have the option, it's better to relax the signature (or
 submit a PR doing so) than to unwrap the `RecursiveDict`.
