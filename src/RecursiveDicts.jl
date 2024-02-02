@@ -23,17 +23,22 @@ be used anywhere which expects a `Dict`, with a bit of care.
 A `Dict{K,V}` may also be converted to a `RecursiveDict{K,V}`, without copying.
 """
 struct RecursiveDict{K,V} <: AbstractDict{K,Union{V,RecursiveDict}}
-    self::Dict{K,Union{V,RecursiveDict}}
-    RecursiveDict{K,V}(dict::Dict{K,Union{V,RecursiveDict}}) where {K,V} = new(dict)
-    RecursiveDict(dict::AbstractDict) = new{keytype(dict), valtype(dict)}(dict)
-    RecursiveDict{K,V}() where {K,V} = new(Dict{K,Union{V,RecursiveDict}}())
-    function RecursiveDict{K,V}(pairs...) where {K,V}
-       dict = Dict{K,Union{V,RecursiveDict}}(pairs...)
-       new(dict)
+    self::Dict{K,Union{V,RecursiveDict{K,V}}}
+
+    RecursiveDict{K,V}(dict::Dict{K,Union{V,RecursiveDict{K,V}}}) where {K,V} = new(dict)
+    RecursiveDict{K,V}(args...) where {K,V} = new(Dict{K,Union{V,RecursiveDict{K,V}}}(args...))
+    RecursiveDict{K,V}() where {K,V} = new(Dict{K,Union{V,RecursiveDict{K,V}}}())
+    function RecursiveDict{K,V}(pairs::Pair...) where {K,V}
+        dict = Dict{K,Union{V,RecursiveDict{K,V}}}(pairs...)
+        new(dict)
     end
-    function RecursiveDict(pairs::Pair...)
-        dict = Dict(pairs...)
-        new{keytype(dict), valtype(dict)}(dict)
+    function RecursiveDict{K,V}(dict::AbstractDict{K,V}) where {K,V}
+        d = Dict{K, Union{V,RecursiveDict{K,V}}}(collect(pairs(dict))...)
+        new(d)
+    end
+    function RecursiveDict(args...)
+        dict = Dict(args...)
+        new{keytype(dict),valtype(dict)}(dict)
     end
  end
 
@@ -56,19 +61,21 @@ Base.keys(d::RecursiveDict) = keys(d.self)
 Base.values(d::RecursiveDict) = values(d.self)
 Base.eltype(d::RecursiveDict) = eltype(d.self)
 Base.keytype(d::RecursiveDict) = keytype(d.self)
-Base.valtype(d::RecursiveDict) = valtype(d.self)
+Base.valtype(::Type{RecursiveDict{K,V}}) where {K,V} = Union{V,RecursiveDict{K,V}}
 Base.getindex(d::RecursiveDict, k) = getindex(d.self, k)
-Base.setindex!(d::RecursiveDict, v, k) = setindex!(d.self, v, k)
-Base.setindex!(d::RecursiveDict, v::Dict, k) = setindex!(d.self, RecursiveDict(v), k)
+Base.setindex!(d::RecursiveDict, v, k...) = setindex!(d.self, v, k...)
+Base.setindex!(d::RecursiveDict, v::AbstractDict, k...) = setindex!(d.self, RecursiveDict(v), k...)
 Base.empty(::RecursiveDict{K,V}) where {K,V} = RecursiveDict{K,V}()
 Base.empty(::RecursiveDict, ::Type{K}, ::Type{V}) where {K, V} = RecursiveDict{K,V}()
 Base.convert(::Type{Dict}, d::RecursiveDict) = d.self
 Base.convert(::Type{RecursiveDict}, d::Dict) = RecursiveDict(d)
 Base.get(d::RecursiveDict, args...) = get(d.self, args...)
 Base.get(f::Callable, d::RecursiveDict, key) = get(f, d.self, key)
+Base.getkey(d::RecursiveDict, args...) = getkey(d.self, args...)
 Base.get!(d::RecursiveDict, args...) = get!(d.self, args...)
 Base.get!(f::Callable, d::RecursiveDict, key) = get!(f, d.self, key)
 Base.pop!(d::RecursiveDict, args...) = pop!(d.self, args...)
+Base.sizehint!(d::RecursiveDict, args...; kwargs...) = sizehint!(d.self, args...; kwargs...)
 
 function Base.delete!(d::RecursiveDict, k::Any)
     delete!(d.self, k)
@@ -88,7 +95,7 @@ function Base.push!(d::RecursiveDict, p::Pair...)
 end
 
 function Base.merge(d::RecursiveDict, d2::AbstractDict)
-    merge!(copy(d), d2)
+    merge!(copy(d), RecursiveDict(d2))
 end
 
 function Base.mergewith(combine::Callable, d::RecursiveDict, others::AbstractDict...)
