@@ -58,7 +58,7 @@ _other than that sort of RecursiveDict_ is allowed, so the above identity doesn'
 
 ```jldoctest
 julia> rd = RecursiveDict{Int,String}(1 => "one", 2 => "two")
-RecursiveDict{Int64, String}) with 2 entries:
+RecursiveDict{Int64, String} with 2 entries:
   2 => "two"
   1 => "one"
 
