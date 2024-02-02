@@ -1,7 +1,7 @@
 name = "RecursiveDicts"
 uuid = "e20b0d26-85b9-4cc4-ab0c-abba12ca33a5"
 authors = ["Sam Atman <atmanistan@gmail.com> and contributors"]
-version = "1.0.0-DEV"
+version = "1.0.0-rc"
 
 [compat]
 julia = "1.6"

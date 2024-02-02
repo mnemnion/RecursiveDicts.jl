@@ -20,4 +20,5 @@ makedocs(;
 deploydocs(;
     repo="github.com/mnemnion/RecursiveDicts.jl",
     devbranch="trunk",
+    branch="gh-pages",
 )
