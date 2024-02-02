@@ -109,8 +109,11 @@ necessary to reflect the semantic differences.  Other than the obvious ones invo
 might be a bit surprising, but it's consistent with the `valtype` being a Union, Julia
 throws an error on code like `convert(Union{Int,Symbol}, 4.0)`.
 
-`convert(Dict, recursivedict)` will return the wrapped `Dict`, which will continue to
-share contents with the original, and `convert(RecursiveDict, dict)` is also defined,
+`RecursiveDicts` is a self-contained package, having no dependencies other than the
+stdlib.
+
+`convert(Dict, d::RecursiveDict)` will return the wrapped `Dict`, which will continue to
+share contents with the original, and `convert(RecursiveDict, d::Dict)` is also defined,
 this makes it mostly painless to use a `RecursiveDict` wherever a `Dict` is
 expected.  Many, probably most, methods with `::Dict` in the signature, should actually
 have `::AbstractDict`, so if you have the option, it's better to relax the signature (or
