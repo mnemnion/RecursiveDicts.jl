@@ -21,4 +21,6 @@ deploydocs(;
     repo="github.com/mnemnion/RecursiveDicts.jl",
     devbranch="trunk",
     branch="gh-pages",
+    devurl="dev",
+    versions=["stable" => "v^", "v#.#", devurl => devurl],
 )
